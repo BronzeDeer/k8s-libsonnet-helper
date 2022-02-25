@@ -5,7 +5,6 @@
 setup() {
 
   cd "$1"
-  pwd
 
   if [ ! -f "jsonnetfile.json" ]; then
     jb init
