@@ -1,13 +1,23 @@
-#! /bin/bash
+#! /bin/bash -e
 
-__SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+# Allow executing jb steps in subshell to contain path change in subshell even if sourced
+# first argument is the dir to setup in, second is the k8s to setup
+setup() {
 
+  cd "$1"
+  pwd
 
-cd ${__SCRIPT_DIR}
+  if [ ! -f "jsonnetfile.json" ]; then
+    jb init
+  fi
 
-if [ ! -f "jsonnetfile.json" ]; then
-  jb init
-fi
+  jb install "https://github.com/jsonnet-libs/k8s-libsonnet/${2}@main"
+
+  echo "import \"../vendor/${2}/main.libsonnet\"" > ${1}/lib/k.libsonnet
+
+}
+
+__SCRIPT_DIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
 if [ -z "${1+x}" ]; then
   # Automatically set to version of server pointed to by current kubeconfig
@@ -21,13 +31,10 @@ else
   fi
 fi
 
-jb install "https://github.com/jsonnet-libs/k8s-libsonnet/${__VERSION}@main"
-
-echo "import \"../vendor/${__VERSION}/main.libsonnet\"" > ${__SCRIPT_DIR}/lib/k.libsonnet
+#Run function in subshell
+(setup "${__SCRIPT_DIR}" "${__VERSION}")
 
 echo "Setup k.libsonnet for k8s version $__VERSION. To use it, append $__SCRIPT_DIR/lib to your jpath or source this script"
 
 # Enable easy sourcing of this script
-JSONNET_PATH="$JSONNET_PATH:$__SCRIPT_DIR/lib"
-unset __SCRIPT_DIR
-unset __VERSION
+export JSONNET_PATH="$JSONNET_PATH:$__SCRIPT_DIR/lib"
