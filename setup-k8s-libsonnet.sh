@@ -1,7 +1,6 @@
 #! /bin/bash
 
-__SCRIPT_DIR=$(realpath ${BASH_SOURCE[0]})
-__SCRIPT_DIR=$(dirname $__SCRIPT_DIR)
+__SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
 
 cd ${__SCRIPT_DIR}
