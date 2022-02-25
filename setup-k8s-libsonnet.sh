@@ -3,6 +3,9 @@
 __SCRIPT_DIR=$(realpath ${BASH_SOURCE[0]})
 __SCRIPT_DIR=$(dirname $__SCRIPT_DIR)
 
+
+cd ${__SCRIPT_DIR}
+
 if [ ! -f "jsonnetfile.json" ]; then
   jb init
 fi
@@ -21,7 +24,7 @@ fi
 
 jb install "https://github.com/jsonnet-libs/k8s-libsonnet/${__VERSION}@main"
 
-echo "import \"../vendor/${__VERSION}/main.libsonnet\"" > lib/k.libsonnet
+echo "import \"../vendor/${__VERSION}/main.libsonnet\"" > ${__SCRIPT_DIR}/lib/k.libsonnet
 
 echo "Setup k.libsonnet for k8s version $__VERSION. To use it, append $__SCRIPT_DIR/lib to your jpath or source this script"
 
